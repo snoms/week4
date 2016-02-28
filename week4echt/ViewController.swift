@@ -10,54 +10,59 @@ import UIKit
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UITextFieldDelegate {
 
+    var todoArray = [String]()
     
+    func writeData() {
+        if let directory: String = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
+            
+            let path: String = directory + "todoliststorage.txt"
+            let text = todoArray.joinWithSeparator("^")
+            do {
+                try text.writeToFile(path, atomically: false, encoding: NSUTF8StringEncoding)
+            }
+            catch {
+                // Error handling here.
+            }
+        }
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
+
         self.inputTodo.delegate = self
         tableView.rowHeight = UITableViewAutomaticDimension
         // Do any additional setup after loading the view, typically from a nib.
-        /*if let directory: String = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
+        if let directory: String = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
             
-            let path: String = directory + "test.txt"
-            
+            let path: String = directory + "todoliststorage.txt"
+            print(path)
 
-            
-            // Reading.
+            // Reading todo list from test.txt
             do {
-                let loadedArray = try String(contentsOfFile: path, encoding: NSUTF8StringEncoding)
+                let loadedFile = try String(contentsOfFile: path, encoding: NSUTF8StringEncoding)
+                todoArray = loadedFile.characters.split{$0 == "^" || $0 == "\r\n"}.map(String.init)
+
             } catch {
                 // Error handling here.
             }
         } else {
             // Error handling here.
-        } */
+        }
     }
-    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
-        
-        /* Writing.
-        do {
-            try todoArray.writeToFile(path, atomically: false, encoding: NSUTF8StringEncoding)
-        }
-        catch {
-            // Error handling here.
-        } */
     }
     
     @IBOutlet weak var tableView: UITableView!
     
-    
     @IBOutlet weak var inputTodo: UITextField!
     
-    var todoArray = ["test", "test2", "test3"]
     @IBAction func enterTodo(sender: AnyObject) {
         if (inputTodo.text == "") {
             // Create the alert controller.
-            var alert = UIAlertController(title: "You didn't enter anything!", message: "Insert your todo here or press OK to insert an empty row", preferredStyle: .Alert)
+            let alert = UIAlertController(title: "You didn't enter anything!", message: "Insert your todo here or press OK to insert an empty row", preferredStyle: .Alert)
             
             // Add the text field. You can configure it however you need.
             alert.addTextFieldWithConfigurationHandler({ (textField) -> Void in
@@ -70,15 +75,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
                 print("Text field: \(textField.text)")
                 self.todoArray.append(textField.text!)
                 self.tableView.reloadData()
+                self.writeData()
             }))
-            var cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel) {
+            let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel) {
                 UIAlertAction in
                 NSLog("Cancel Pressed")
                 self.inputTodo.resignFirstResponder()
             }            // Present the alert.
             alert.addAction(cancelAction)
             self.presentViewController(alert, animated: true, completion: nil)
-            
             
         }
         else {
@@ -88,7 +93,10 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             print(todoArray)
             inputTodo.text = ""
             tableView.reloadData()
+            self.inputTodo.resignFirstResponder()
+
         }
+        writeData()
     }
         
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -111,8 +119,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         if editingStyle == UITableViewCellEditingStyle.Delete {
             todoArray.removeAtIndex(indexPath.row)
             tableView.deleteRowsAtIndexPaths([indexPath], withRowAnimation: UITableViewRowAnimation.Automatic)
+            writeData()
         }
     }
-    
+
 }
 
