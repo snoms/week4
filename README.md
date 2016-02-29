@@ -13,13 +13,15 @@ Needs a way to prioritize To-dos. Large To-dos are not completely displayed. Key
 
 
 #### Version
-0.2.0
+0.2.1
 
 
-#### Changes
+#### Changes in 0.2.0
 - Added data persistence functionality
 - Reordered README.md
 
+#### Changes in 0.2.1
+- Fixed data persistence
 
 #### Credits
 IQKeyboardManager

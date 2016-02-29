@@ -15,13 +15,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     func writeData() {
         if let directory: String = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
             
-            let path: String = directory + "todoliststorage.txt"
+            let path: String = directory + "/todoliststorage.txt"
             let text = todoArray.joinWithSeparator("^")
             do {
                 try text.writeToFile(path, atomically: false, encoding: NSUTF8StringEncoding)
             }
             catch {
                 // Error handling here.
+                print("error while writing list to storage")
+                print(path)
             }
         }
     }
@@ -34,7 +36,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         // Do any additional setup after loading the view, typically from a nib.
         if let directory: String = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
             
-            let path: String = directory + "todoliststorage.txt"
+            let path: String = directory + "/todoliststorage.txt"
             print(path)
 
             // Reading todo list from test.txt
@@ -44,9 +46,11 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
 
             } catch {
                 // Error handling here.
+                print("error while reading stored list")
             }
         } else {
             // Error handling here.
+            print("error while reading stored list")
         }
     }
     
