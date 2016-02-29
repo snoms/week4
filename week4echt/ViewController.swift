@@ -28,6 +28,12 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
     }
     
+    func invalidChar() {
+        let charAlert = UIAlertController(title: "Error", message: "Invalid character: '^'", preferredStyle: UIAlertControllerStyle.Alert)
+        charAlert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+        self.presentViewController(charAlert, animated: true, completion: nil)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -77,9 +83,14 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: { (action) -> Void in
                 let textField = alert.textFields![0] as UITextField
                 print("Text field: \(textField.text)")
+                if (textField.text?.characters.contains("^") == false) {
                 self.todoArray.append(textField.text!)
                 self.tableView.reloadData()
                 self.writeData()
+                }
+                else {
+                    self.invalidChar()
+                }
             }))
             let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel) {
                 UIAlertAction in
@@ -93,11 +104,16 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         else {
             // alert: you have entered an empty todo. do you want to insert a white line?
             // if yes --> continue, if no --> abort
+            if (inputTodo.text?.characters.contains("^") == false) {
             todoArray.append(inputTodo.text!)
             print(todoArray)
             inputTodo.text = ""
             tableView.reloadData()
             self.inputTodo.resignFirstResponder()
+            }
+            else {
+                invalidChar()
+            }
 
         }
         writeData()
