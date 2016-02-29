@@ -28,28 +28,17 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
     }
     
-    func invalidChar() {
-        let charAlert = UIAlertController(title: "Error", message: "Invalid character: '^'", preferredStyle: UIAlertControllerStyle.Alert)
-        charAlert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
-        self.presentViewController(charAlert, animated: true, completion: nil)
-    }
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        self.inputTodo.delegate = self
-        tableView.rowHeight = UITableViewAutomaticDimension
-        // Do any additional setup after loading the view, typically from a nib.
+    func readData() {
         if let directory: String = NSSearchPathForDirectoriesInDomains(NSSearchPathDirectory.DocumentDirectory, NSSearchPathDomainMask.AllDomainsMask, true).first {
             
             let path: String = directory + "/todoliststorage.txt"
             print(path)
-
+            
             // Reading todo list from test.txt
             do {
                 let loadedFile = try String(contentsOfFile: path, encoding: NSUTF8StringEncoding)
                 todoArray = loadedFile.characters.split{$0 == "^" || $0 == "\r\n"}.map(String.init)
-
+                
             } catch {
                 // Error handling here.
                 print("error while reading stored list")
@@ -60,9 +49,47 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         }
     }
     
+    func invalidChar() {
+        let charAlert = UIAlertController(title: "Error", message: "Invalid character: '^'", preferredStyle: UIAlertControllerStyle.Alert)
+        charAlert.addAction(UIAlertAction(title: "OK", style: UIAlertActionStyle.Default, handler: nil))
+        self.presentViewController(charAlert, animated: true, completion: nil)
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        self.inputTodo.delegate = self
+        tableView.rowHeight = UITableViewAutomaticDimension
+        // Do any additional setup after loading the view, typically from a nib.
+        readData()
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    @IBAction func clearAll(sender: AnyObject) {
+        // Create the alert controller.
+        let deleteAlert = UIAlertController(title: "Warning", message: "Are you sure you want to delete all To-dos? This can not be reverted.", preferredStyle: .Alert)
+        
+        // Grab the value from the text field, and print it when the user clicks OK.
+        let okAction = UIAlertAction(title: "Delete All", style: UIAlertActionStyle.Destructive) {
+            UIAlertAction in
+            NSLog("OK Pressed")
+            self.todoArray.removeAll()
+            self.writeData()
+            self.readData()
+            self.tableView.reloadData()
+        }
+        
+        let cancelAction = UIAlertAction(title: "Cancel", style: UIAlertActionStyle.Cancel) {
+            UIAlertAction in
+            NSLog("Cancel Pressed")
+            self.inputTodo.resignFirstResponder()
+        }            // Present the alert.
+        deleteAlert.addAction(okAction)
+        deleteAlert.addAction(cancelAction)
+        self.presentViewController(deleteAlert, animated: true, completion: nil)
     }
     
     @IBOutlet weak var tableView: UITableView!
@@ -78,15 +105,15 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             alert.addTextFieldWithConfigurationHandler({ (textField) -> Void in
                 textField.text = ""
             })
-
+            
             // Grab the value from the text field, and print it when the user clicks OK.
             alert.addAction(UIAlertAction(title: "OK", style: .Default, handler: { (action) -> Void in
                 let textField = alert.textFields![0] as UITextField
                 print("Text field: \(textField.text)")
                 if (textField.text?.characters.contains("^") == false) {
-                self.todoArray.append(textField.text!)
-                self.tableView.reloadData()
-                self.writeData()
+                    self.todoArray.append(textField.text!)
+                    self.tableView.reloadData()
+                    self.writeData()
                 }
                 else {
                     self.invalidChar()
@@ -99,8 +126,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             }            // Present the alert.
             alert.addAction(cancelAction)
             self.presentViewController(alert, animated: true, completion: nil)
-            
-        }
+            }
         else {
             // alert: you have entered an empty todo. do you want to insert a white line?
             // if yes --> continue, if no --> abort
@@ -114,7 +140,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             else {
                 invalidChar()
             }
-
         }
         writeData()
     }
@@ -142,6 +167,4 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             writeData()
         }
     }
-
 }
-
